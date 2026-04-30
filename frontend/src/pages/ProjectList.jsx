@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { FolderPlus } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
 
 const ProjectList = () => {
+  const { user } = useContext(AuthContext);
   const [projects, setProjects] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [newProject, setNewProject] = useState({ name: '', description: '' });
@@ -37,9 +39,11 @@ const ProjectList = () => {
     <div className="page-container">
       <div className="page-header">
         <h1 className="page-title">Projects</h1>
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-          <FolderPlus size={18} /> New Project
-        </button>
+        {user?.role === 'admin' && (
+          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+            <FolderPlus size={18} /> New Project
+          </button>
+        )}
       </div>
 
       <div className="projects-grid">

@@ -17,10 +17,16 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    // Check if any users exist to determine if this should be the first admin
+    const userCount = await User.countDocuments();
+    const role = userCount === 0 ? 'admin' : 'member';
+
+    // Create user
     const user = await User.create({
       name,
       email,
-      password
+      password,
+      role
     });
 
     if (user) {
@@ -28,7 +34,8 @@ const registerUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        token: generateToken(user._id),
+        role: user.role,
+        token: generateToken(user._id)
       });
     } else {
       res.status(400).json({ message: 'Invalid user data' });
@@ -49,7 +56,8 @@ const loginUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        token: generateToken(user._id),
+        role: user.role,
+        token: generateToken(user._id)
       });
     } else {
       res.status(401).json({ message: 'Invalid email or password' });

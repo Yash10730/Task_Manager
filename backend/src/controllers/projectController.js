@@ -4,6 +4,10 @@ const User = require('../models/User');
 const createProject = async (req, res) => {
   const { name, description } = req.body;
 
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Only global admins can create projects' });
+  }
+
   try {
     const project = await Project.create({
       name,
